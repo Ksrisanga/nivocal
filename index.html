@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>NivoCaL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: sans-serif; padding: 10px; }
+    label, select, input, button { margin: 6px 0; font-size: 1rem; display: block; max-width: 400px; width: 100%; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 0.95rem; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    .paid { background-color: #ffe0e0; }
+    .free { background-color: #ffffff; }
+    .vialBtn { margin: 4px 4px 0 0; padding: 6px 12px; border: 1px solid #007acc; background-color: white; color: #007acc; border-radius: 4px; cursor: pointer; }
+    .vialBtn.active { background-color: #007acc; color: white; }
+    #captureZone { background: white; padding: 20px; border: 1px solid #ccc; margin-top: 10px; max-width: 800px; }
+  </style>
+</head>
+<body>
+  <h2>NivoCaL</h2>
+
+  <label>Indication:
+    <select id="indicationSelect" onchange="filterRegimen()"><option value="">-- เลือก --</option></select>
+  </label>
+  <label>Regimen:
+    <select id="regimenSelect" onchange="populateData()"><option value="">-- เลือก --</option></select>
+  </label>
+  <label>น้ำหนักผู้ป่วย (kg):
+    <input type="number" id="weightInput" value="60" />
+  </label>
+
+  <div>
+    <label>ขนาดขวดที่ใช้:</label>
+    <button class="vialBtn active" data-size="100">100 mg</button>
+    <button class="vialBtn active" data-size="40">40 mg</button>
+    <button class="vialBtn" data-size="120">120 mg</button>
+  </div>
+
+  <div>
+    <label>ราคาขวด (บาท):</label>
+    <label>120 mg: <input type="number" id="price120" value="70620" /></label>
+    <label>100 mg: <input type="number" id="price100" value="58850" /></label>
+    <label>40 mg: <input type="number" id="price40" value="23540" /></label>
+  </div>
+
+  <button onclick="calculate()">คำนวณ</button>
+  <button onclick="exportImage()">บันทึกเป็นรูปภาพ</button>
+
+  <div id="captureZone"></div>
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script>
+    const data = [{"Indication": "NSCLC (2L)", "Regimen Name": "Monotherapy", "Nivolumab Type": "fixed", "Nivolumab Dose": "240", "Interval (weeks)": 2, "Cap (Cycle)": 14, "Study": "CheckMate-017"}, {"Indication": "NSCLC (2L)", "Regimen Name": "Monotherapy", "Nivolumab Type": "fixed", "Nivolumab Dose": "480", "Interval (weeks)": 4, "Cap (Cycle)": 7, "Study": "CheckMate-9LA"}, {"Indication": "NSCLC (2L)", "Regimen Name": "Monotherapy", "Nivolumab Type": "weight", "Nivolumab Dose": "3", "Interval (weeks)": 2, "Cap (Cycle)": 20, "Study": "CheckMate-017"}];
+    const vialButtons = document.querySelectorAll(".vialBtn");
+    vialButtons.forEach(btn => {
+      btn.addEventListener("click", () => btn.classList.toggle("active"));
+    });
+
+    const indicationSel = document.getElementById("indicationSelect");
+    const regimenSel = document.getElementById("regimenSelect");
+
+    [...new Set(data.map(d => d.Indication))].forEach(ind => {
+      const opt = document.createElement("option");
+      opt.value = ind;
+      opt.textContent = ind;
+      indicationSel.appendChild(opt);
+    });
+
+    let filtered = [];
+    function filterRegimen() {
+      regimenSel.innerHTML = '<option value="">-- เลือก --</option>';
+      const selected = indicationSel.value;
+      filtered = data.filter(d => d.Indication === selected);
+      filtered.forEach((d, i) => {
+        const doseLabel = d["Nivolumab Type"] === "fixed" ? `${d["Nivolumab Dose"]} mg` : `${d["Nivolumab Dose"]} mg/kg`;
+        const label = `Nivolumab ${doseLabel} – Q${d["Interval (weeks)"]}W (${d["Study"]})`;
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = label;
+        regimenSel.appendChild(opt);
+      });
+    }
+
+    function getSelectedVials() {
+      return Array.from(document.querySelectorAll(".vialBtn.active")).map(btn => parseInt(btn.dataset.size)).sort((a,b) => b-a);
+    }
+
+    function getVialPlan(dose, vials, prices) {
+      const count = {120:0, 100:0, 40:0};
+      let rem = dose;
+      for (let v of vials) {
+        while (rem >= v - 0.01) { count[v]++; rem -= v; }
+      }
+      if (rem > 0 && vials.includes(40)) count[40]++;
+      let text = [], total = 0;
+      for (let v of vials) {
+        if (count[v]) {
+          text.push(`${v}mg × ${count[v]}`);
+          total += count[v] * prices[v];
+        }
+      }
+      return { text: text.join(", "), total };
+    }
+
+    function calculate() {
+      const idx = regimenSel.value;
+      if (!filtered[idx]) return;
+      const d = filtered[idx];
+      const weight = parseFloat(document.getElementById("weightInput").value);
+      const dose = d["Nivolumab Type"] === "fixed" ? parseFloat(d["Nivolumab Dose"]) : weight * parseFloat(d["Nivolumab Dose"]);
+      const cap = parseInt(d["Cap (Cycle)"]);
+      const prices = {
+        120: parseFloat(document.getElementById("price120").value),
+        100: parseFloat(document.getElementById("price100").value),
+        40: parseFloat(document.getElementById("price40").value),
+      };
+      const vials = getSelectedVials();
+      let html = `
+        <h3>📌 Regimen: Nivolumab ${d["Nivolumab Type"] === "fixed" ? d["Nivolumab Dose"] + " mg" : d["Nivolumab Dose"] + " mg/kg"} – Q${d["Interval (weeks)"]}W</h3>
+        <p><strong>Study:</strong> ${d["Study"]}<br/>
+        <strong>น้ำหนักผู้ป่วย:</strong> ${weight} kg<br/>
+        <strong>ขนาดขวดยาที่ใช้:</strong> ${vials.join(", ")} mg</p>
+        <table><tr><th>Cycle</th><th>Dose (mg)</th><th>Vials</th><th>Status</th><th>Cost</th></tr>`;
+      let total = 0;
+      for (let i = 1; i <= cap; i++) {
+        let doseUsed = dose;
+        let label = i.toString();
+        let isFree = i % 2 === 0;
+        let special = false;
+        if (d["Nivolumab Type"] === "fixed" && d["Nivolumab Dose"] == 480 && d["Interval (weeks)"] == 4 && i === 7) {
+          // 7A/7B logic
+          const pA = getVialPlan(240, vials, prices);
+          html += `<tr class="paid"><td>7A</td><td>240</td><td>${pA.text}</td><td>Paid</td><td>${pA.total.toLocaleString()}</td></tr>`;
+          const pB = getVialPlan(240, vials, prices);
+          html += `<tr class="free"><td>7B</td><td>240</td><td>${pB.text}</td><td>Free</td><td>0</td></tr>`;
+          total += pA.total;
+          special = true;
+        }
+        if (!special) {
+          const p = getVialPlan(doseUsed, vials, prices);
+          const cost = isFree ? 0 : p.total;
+          html += `<tr class="${isFree ? 'free' : 'paid'}"><td>${label}</td><td>${doseUsed.toFixed(2)}</td><td>${p.text}</td><td>${isFree ? "Free" : "Paid"}</td><td>${cost.toLocaleString()}</td></tr>`;
+          if (!isFree) total += cost;
+        }
+      }
+      html += `</table><p><strong>รวมที่ต้องจ่าย:</strong> <span style="color:red">${total.toLocaleString()} บาท</span></p>`;
+      document.getElementById("captureZone").innerHTML = html;
+    }
+
+    function exportImage() {
+      const node = document.getElementById("captureZone");
+      html2canvas(node, { scale: 2, useCORS: true }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "nivocalc_result.jpg";
+        link.href = canvas.toDataURL("image/jpeg");
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
