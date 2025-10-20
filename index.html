@@ -1,160 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>NivoCaL</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body { font-family: sans-serif; padding: 10px; }
-    label, select, input, button { margin: 6px 0; font-size: 1rem; display: block; max-width: 400px; width: 100%; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 0.95rem; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-    .paid { background-color: #ffe0e0; }
-    .free { background-color: #ffffff; }
-    .vialBtn { margin: 4px 4px 0 0; padding: 6px 12px; border: 1px solid #007acc; background-color: white; color: #007acc; border-radius: 4px; cursor: pointer; }
-    .vialBtn.active { background-color: #007acc; color: white; }
-    #captureZone { background: white; padding: 20px; border: 1px solid #ccc; margin-top: 10px; max-width: 800px; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NivoCaL — v6.6 (Fixed mapping: Main)</title>
+<style>
+  :root{--line:#e5e7eb;--card:#f9fafb;--accent:#00a4cf;--primary:#f15a22}
+  *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+  header{padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:5}
+  h1{margin:0;font-size:18px}
+  .banner{padding:8px 12px;background:#ecfdf5;border-bottom:1px solid #d1fae5;color:#065f46;font-size:12px}
+  main{max-width:1200px;margin:18px auto;padding:0 12px 84px;display:grid;gap:16px;grid-template-columns:1fr}
+  @media(min-width:980px){ main{grid-template-columns:420px 1fr} }
+  .card{background:#f9fafb;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 20px #0000000a}
+  .card h2{margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:16px}
+  .pad{padding:14px 16px} label{display:block;font-size:13px;margin:10px 0 6px}
+  input,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line)}
+  .inline{display:flex;gap:10px;flex-wrap:wrap}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--line)} th{background:#f3f4f6;text-align:left}
+  .btn{cursor:pointer;padding:12px 16px;border:1px solid var(--line);border-radius:12px}
+  .primary{background:var(--primary);color:#fff;border-color:#e24f1a}
+  .toggle-group{display:flex;gap:8px;flex-wrap:wrap}.toggle{cursor:pointer;padding:8px 12px;border:1px solid var(--line);border-radius:999px}
+  .active{background:#00a4cf;color:#fff;border-color:#0594b8}
+  .small{font-size:12px;color:#6b7280}
+</style>
 </head>
 <body>
-  <h2>NivoCaL</h2>
+  <header>
+    <h1>NivoCaL — v6.6 (Fixed mapping: Main)</h1>
+    <div class="banner" id="dbg"></div>
+  </header>
 
-  <label>Indication:
-    <select id="indicationSelect" onchange="filterRegimen()"><option value="">-- Select --</option></select>
-  </label>
-  <label>Regimen:
-    <select id="regimenSelect" onchange="populateData()"><option value="">-- Select --</option></select>
-  </label>
-  <label>Patient Weight (kg):
-    <input type="number" id="weightInput" value="60" />
-  </label>
+  <main>
+    <div>
+      <section class="card">
+        <h2>Patient</h2>
+        <div class="pad">
+          <label>Patient weight (kg)</label>
+          <input id="weight" type="number" min="1" step="0.1" value="60"/>
+        </div>
+      </section>
 
-  <div>
-    <label>Dosage:</label>
-    <button class="vialBtn active" data-size="100">100 mg</button>
-    <button class="vialBtn active" data-size="40">40 mg</button>
-    <button class="vialBtn" data-size="120">120 mg</button>
-  </div>
+      <section class="card">
+        <h2>Indication & Regimen</h2>
+        <div class="pad">
+          <div class="inline">
+            <div style="flex:1"><label>Indication</label><select id="indication"></select></div>
+            <div style="flex:1"><label>Regimen</label><select id="regimen"></select></div>
+          </div>
+          <div class="small">Cycles auto-set per regimen. IPI promo handled when combo present.</div>
+        </div>
+      </section>
+    </div>
 
-  <div>
-    <label>Vial Prices (THB):</label>
-    <label>120 mg: <input type="number" id="price120" value="70620" /></label>
-    <label>100 mg: <input type="number" id="price100" value="58850" /></label>
-    <label>40 mg: <input type="number" id="price40" value="23540" /></label>
-  </div>
+    <div>
+      <section class="card">
+        <h2>Pricing</h2>
+        <div class="pad">
+          <div class="inline">
+            <div style="flex:1"><label>Nivolumab — 40 mg (THB)</label><input id="price40" type="number" value="23540"></div>
+            <div style="flex:1"><label>Nivolumab — 100 mg (THB)</label><input id="price100" type="number" value="58850"></div>
+          </div>
+          <div class="inline" style="margin-top:10px">
+            <div style="flex:1"><label>Nivolumab — 120 mg (THB)</label><input id="price120" type="number" value="70620"></div>
+            <div style="flex:1"><label>Ipilimumab — 50 mg (THB)</label><input id="priceIpi50" type="number" value="60348"><div class="small">Promo: 1-for-1 on first 4 cycles</div></div>
+          </div>
+          <div style="margin-top:8px">
+            <label>Allowed vial sizes</label>
+            <div class="toggle-group" id="vialToggles">
+              <div class="toggle active" data-mg="40">40 mg</div>
+              <div class="toggle active" data-mg="100">100 mg</div>
+              <div class="toggle active" data-mg="120">120 mg</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-  <button onclick="calculate()">Calculate</button>
-  <button onclick="exportImage()">Export as Image</button>
+      <section class="card">
+        <h2>Result</h2>
+        <div class="pad" id="result"><div class="small">Press <b>Calculate</b>.</div></div>
+      </section>
 
-  <div id="captureZone"></div>
+      <section class="card">
+        <h2>Actions</h2>
+        <div class="pad inline">
+          <button class="btn primary" id="calcBtn">Calculate</button>
+          <button class="btn" id="exportBtn">Export Result</button>
+        </div>
+      </section>
+    </div>
+  </main>
 
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script>
-    const data = [{"Indication": "NSCLC (2L)", "Regimen Name": "Monotherapy", "Nivolumab Type": "fixed", "Nivolumab Dose": "240", "Interval (weeks)": 2, "Cap (Cycle)": 14, "Study": "CheckMate-017"}, {"Indication": "NSCLC (2L)", "Regimen Name": "Monotherapy", "Nivolumab Type": "fixed", "Nivolumab Dose": "480", "Interval (weeks)": 4, "Cap (Cycle)": 7, "Study": "CheckMate-9LA"}, {"Indication": "NSCLC (2L)", "Regimen Name": "Monotherapy", "Nivolumab Type": "weight", "Nivolumab Dose": "3", "Interval (weeks)": 2, "Cap (Cycle)": 20, "Study": "CheckMate-017"}];
-    const vialButtons = document.querySelectorAll(".vialBtn");
-    vialButtons.forEach(btn => {
-      btn.addEventListener("click", () => btn.classList.toggle("active"));
-    });
+  const DATA = [{"indication": "SCCHN (2L)", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "NSCLC (Neoadjuvant)", "regimens": [{"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": null}]}, {"indication": "NSCLC (1L)", "regimens": [{"name": "Nivo + Ipi (Nivo 3.0 mg/kg + Ipi 1.0 mg/kg) Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}]}, {"indication": "NSCLC (2L)", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "MPM (1L)", "regimens": [{"name": "Nivo + Ipi (Nivo 3.0 mg/kg + Ipi 1.0 mg/kg) Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}]}, {"indication": "Adj EC or GEJC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L ESCC", "regimens": [{"name": "Nivo + Ipi (Nivo 3.0 mg/kg + Ipi 1.0 mg/kg) Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L GC,GEJC,EAC", "regimens": [{"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L ESCC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "3L GC/GEJ", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L Melanoma", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "Adj Melanoma", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L cHL", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L RCC", "regimens": [{"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L RCC ", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "Adj MIUC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L UC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L HCC", "regimens": [{"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L HCC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L mCRC", "regimens": [{"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L mCRC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 1.0 mg/kg Q3W", "type": "mgkg", "doseMg": null, "mgPerKg": 1.0, "freq": "q3w", "defaultCycles": 4, "combo": null}]}];
 
-    const indicationSel = document.getElementById("indicationSelect");
-    const regimenSel = document.getElementById("regimenSelect");
+  // Debug banner
+  document.getElementById('dbg').textContent = `Loaded ${DATA.length} indications / ${DATA.reduce((s,g)=>s+g.regimens.length,0)} regimens from sheet: Main`;
 
-    [...new Set(data.map(d => d.Indication))].forEach(ind => {
-      const opt = document.createElement("option");
-      opt.value = ind;
-      opt.textContent = ind;
-      indicationSel.appendChild(opt);
-    });
+  function fmt(n){ return new Intl.NumberFormat('en-US').format(n); }
+  function getAllowedVials(){ return Array.from(document.querySelectorAll('.toggle[data-mg]')).filter(t=>t.classList.contains('active')).map(t=>parseInt(t.dataset.mg,10)); }
+  document.getElementById('vialToggles').addEventListener('click', e=>{ const t=e.target.closest('.toggle'); if(!t) return; t.classList.toggle('active'); });
 
-    let filtered = [];
-    function filterRegimen() {
-      regimenSel.innerHTML = '<option value="">-- Select --</option>';
-      const selected = indicationSel.value;
-      filtered = data.filter(d => d.Indication === selected);
-      filtered.forEach((d, i) => {
-        const doseLabel = d["Nivolumab Type"] === "fixed" ? `${d["Nivolumab Dose"]} mg` : `${d["Nivolumab Dose"]} mg/kg`;
-        const label = `Nivolumab ${doseLabel} – Q${d["Interval (weeks)"]}W (${d["Study"]})`;
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = label;
-        regimenSel.appendChild(opt);
-      });
+  function populate(){
+    const elInd=document.getElementById('indication');
+    if(!DATA.length){ elInd.innerHTML = '<option>(no data)</option>'; return; }
+    elInd.innerHTML = DATA.map((g,i)=>`<option value="${i}">${g.indication}</option>`).join('');
+    elInd.selectedIndex=0;
+    changeInd();
+  }
+  function changeInd(){
+    const elInd=document.getElementById('indication');
+    const elReg=document.getElementById('regimen');
+    const group = DATA[+elInd.value];
+    elReg.innerHTML = (group?.regimens||[]).map((r,i)=>{
+      const combo = r.combo ? " • Combo (IPI×4)" : "";
+      return `<option value="${i}">${r.name}${combo}</option>`;
+    }).join('');
+    elReg.selectedIndex=0;
+  }
+  document.getElementById('indication').addEventListener('change', ()=>{ changeInd(); onCalc(); });
+  document.getElementById('regimen').addEventListener('change', onCalc);
+  document.getElementById('calcBtn').addEventListener('click', onCalc);
+
+  function optimizeVials(needMg, allowed, prices){
+    if(!allowed.length) return null;
+    let best=null;
+    function consider(counts){
+      const totalMg = Object.entries(counts).reduce((s,[mg,c])=>s + (+mg)*c, 0);
+      if(totalMg < needMg) return;
+      const cost = Object.entries(counts).reduce((s,[mg,c])=> s + (prices[mg]||0)*c, 0);
+      const over = totalMg - needMg;
+      const score = [cost, over, (counts[40]||0)+(counts[100]||0)+(counts[120]||0), totalMg];
+      if(!best || score.some((v,i)=>v<(best.score[i]||Infinity))) best = {counts:{...counts}, totalMg, overfill:over, cost, score};
     }
+    const cap = (mg)=> Math.ceil((needMg+360)/mg);
+    const ranges = {40: allowed.includes(40)?cap(40):0, 100: allowed.includes(100)?cap(100):0, 120: allowed.includes(120)?cap(120):0};
+    for(let n120=0;n120<=ranges[120];n120++)
+      for(let n100=0;n100<=ranges[100];n100++)
+        for(let n40=0;n40<=ranges[40];n40++)
+          if(n120+n100+n40) consider({40:n40,100:n100,120:n120});
+    return best;
+  }
+  function computeDose(reg, weightKg){ if(reg.type==='fixed') return reg.doseMg; if(reg.type==='mgkg') return Math.ceil((reg.mgPerKg||0) * weightKg); return 0; }
+  function computeIpiDose(reg, weightKg){ if(!reg.combo) return 0; return Math.ceil((reg.combo.ipiMgPerKg||0) * weightKg); }
 
-    function getSelectedVials() {
-      return Array.from(document.querySelectorAll(".vialBtn.active")).map(btn => parseInt(btn.dataset.size)).sort((a,b) => b-a);
-    }
+  function onCalc(){
+    const res = document.getElementById('result');
+    if(!DATA.length){ res.innerHTML = '<div class="small">No data</div>'; return; }
+    const gi = +document.getElementById('indication').value;
+    const ri = +document.getElementById('regimen').value;
+    const group = DATA[gi]; const reg = group.regimens[ri];
+    const weight = parseFloat(document.getElementById('weight').value||'0');
+    const plannedCycles = reg.defaultCycles || 4;
+    const need = computeDose(reg, weight);
+    const allowed = getAllowedVials();
+    const prices = {40: parseFloat(document.getElementById('price40').value||'0'), 100: parseFloat(document.getElementById('price100').value||'0'), 120: parseFloat(document.getElementById('price120').value||'0')};
+    const best = optimizeVials(need, allowed, prices);
+    const ipiPerCycleMg = computeIpiDose(reg, weight);
+    const ipiPrice = parseFloat(document.getElementById('priceIpi50').value||'0');
+    const comboCycles = reg.combo ? Math.min(plannedCycles, (reg.combo.ipiCycles||4)) : 0;
+    let ipiVials=0, ipiOver=0, ipiPayCycles=0, ipiFreeCycles=0, ipiTotalCost=0, ipiPromoNote="";
+    if(ipiPerCycleMg>0){ ipiVials=Math.ceil(ipiPerCycleMg/50); ipiOver=ipiVials*50-ipiPerCycleMg; ipiPayCycles=Math.ceil(comboCycles/2); ipiFreeCycles=comboCycles-ipiPayCycles; ipiTotalCost=ipiVials*ipiPrice*ipiPayCycles; ipiPromoNote=`Promo on first ${comboCycles} cycles: pay ${ipiPayCycles}, free ${ipiFreeCycles}`; }
+    const nivoCostPerCycle = best? ((best.counts[40]||0)*prices[40] + (best.counts[100]||0)*prices[100] + (best.counts[120]||0)*prices[120]) : 0;
+    const nivoTotal = nivoCostPerCycle * plannedCycles;
+    const grandTotal = nivoTotal + ipiTotalCost;
+    const vialMix = best? `${best.counts[120]||0}×120 mg • ${best.counts[100]||0}×100 mg • ${best.counts[40]||0}×40 mg` : '-';
+    const rows = [];
+    rows.push(`<tr><th>Item</th><th class="center">Per-cycle Qty</th><th class="center">Vial mix</th><th class="right">Cost / cycle (THB)</th></tr>`);
+    rows.push(`<tr><td>Nivolumab</td><td class="center">${fmt(need)} mg</td><td class="center small">${vialMix}</td><td class="right">${fmt(nivoCostPerCycle)}</td></tr>`);
+    if(best) rows.push(`<tr><td class="muted">Overfill</td><td class="center">${fmt(best.overfill)} mg</td><td class="center">Total ${fmt(best.totalMg)} mg</td><td class="right">-</td></tr>`);
+    if(ipiPerCycleMg>0){ rows.push(`<tr><td>Ipilimumab (combo)</td><td class="center">${fmt(ipiPerCycleMg)} mg</td><td class="center small">${ipiVials}×50 mg</td><td class="right">${fmt(Math.round(ipiVials*ipiPrice*(comboCycles>0?0.5:1)))}</td></tr>`); rows.push(`<tr><td class="muted">IPI details</td><td class="center">Overfill ${fmt(ipiOver)} mg</td><td class="center small">${ipiPromoNote}</td><td class="right">${fmt(ipiTotalCost)}</td></tr>`); }
+    rows.push(`<tr><th>Cycles summary</th><th class="center">Pay</th><th class="center">Free</th><th class="right">Total drug cost (THB)</th></tr>`);
+    rows.push(`<tr><td>Nivolumab</td><td class="center">${fmt(plannedCycles)}</td><td class="center">0</td><td class="right">${fmt(nivoTotal)}</td></tr>`);
+    if(ipiPerCycleMg>0) rows.push(`<tr><td>Ipilimumab</td><td class="center">${fmt(ipiPayCycles)}</td><td class="center">${fmt(ipiFreeCycles)}</td><td class="right">${fmt(ipiTotalCost)}</td></tr>`);
+    rows.push(`<tr><td style="color:#059669"><b>Grand total</b></td><td class="center">—</td><td class="center">—</td><td class="right"><b>${fmt(grandTotal)}</b></td></tr>`);
+    res.innerHTML = `<div class="inline" style="margin-bottom:6px"><span class="small">Indication:</span><b style="margin-left:6px">${group.indication}</b></div>
+      <div class="inline" style="margin-bottom:6px"><span class="small">Regimen:</span><b style="margin-left:6px">${reg.name}</b></div>
+      <div class="inline" style="margin-bottom:6px"><span class="small">Weight:</span><b style="margin-left:6px">${fmt(weight)} kg</b> <span class="small" style="margin-left:10px">Cycles:</span><b style="margin-left:6px">${fmt(plannedCycles)}</b></div>
+      <table>${rows.join('')}</table>`;
+  }
 
-    function getVialPlan(dose, vials, prices) {
-      const count = {120:0, 100:0, 40:0};
-      let rem = dose;
-      for (let v of vials) {
-        while (rem >= v - 0.01) { count[v]++; rem -= v; }
-      }
-      if (rem > 0 && vials.includes(40)) count[40]++;
-      let text = [], total = 0;
-      for (let v of vials) {
-        if (count[v]) {
-          text.push(`${v}mg × ${count[v]}`);
-          total += count[v] * prices[v];
-        }
-      }
-      return { text: text.join(", "), total };
-    }
+  // Export PNG
+  document.getElementById('exportBtn').addEventListener('click', async ()=>{
+    const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    s.onload = async ()=>{ const node=document.getElementById('result'); const canvas=await html2canvas(node,{backgroundColor:'#fff',scale:2});
+      const a=document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download='NivoCaL_result.png'; a.click(); };
+    document.head.appendChild(s);
+  });
 
-    function calculate() {
-      const idx = regimenSel.value;
-      if (!filtered[idx]) return;
-      const d = filtered[idx];
-      const weight = parseFloat(document.getElementById("weightInput").value);
-      const dose = d["Nivolumab Type"] === "fixed" ? parseFloat(d["Nivolumab Dose"]) : weight * parseFloat(d["Nivolumab Dose"]);
-      const cap = parseInt(d["Cap (Cycle)"]);
-      const prices = {
-        120: parseFloat(document.getElementById("price120").value),
-        100: parseFloat(document.getElementById("price100").value),
-        40: parseFloat(document.getElementById("price40").value),
-      };
-      const vials = getSelectedVials();
-      let html = `
-        <h3>📌 Regimen: Nivolumab ${d["Nivolumab Type"] === "fixed" ? d["Nivolumab Dose"] + " mg" : d["Nivolumab Dose"] + " mg/kg"} – Q${d["Interval (weeks)"]}W</h3>
-        <p><strong>Study:</strong> ${d["Study"]}<br/>
-        <strong>Patient Weight:</strong> ${weight} kg<br/>
-        <strong>Dosage:</strong> ${vials.join(", ")} mg</p>
-        <table><tr><th>Cycle</th><th>Dose (mg)</th><th>Vials</th><th>Status</th><th>Cost (THB)</th></tr>`;
-      let total = 0;
-      for (let i = 1; i <= cap; i++) {
-        let doseUsed = dose;
-        let label = i.toString();
-        let isFree = i % 2 === 0;
-        let special = false;
-        if (d["Nivolumab Type"] === "fixed" && d["Nivolumab Dose"] == 480 && d["Interval (weeks)"] == 4 && i === 7) {
-          const pA = getVialPlan(240, vials, prices);
-          html += `<tr class="paid"><td>7A</td><td>240</td><td>${pA.text}</td><td>Paid</td><td>${pA.total.toLocaleString()}</td></tr>`;
-          const pB = getVialPlan(240, vials, prices);
-          html += `<tr class="free"><td>7B</td><td>240</td><td>${pB.text}</td><td>Free</td><td>0</td></tr>`;
-          total += pA.total;
-          special = true;
-        }
-        if (!special) {
-          const p = getVialPlan(doseUsed, vials, prices);
-          const cost = isFree ? 0 : p.total;
-          html += `<tr class="${isFree ? 'free' : 'paid'}"><td>${label}</td><td>${doseUsed.toFixed(2)}</td><td>${p.text}</td><td>${isFree ? "Free" : "Paid"}</td><td>${cost.toLocaleString()}</td></tr>`;
-          if (!isFree) total += cost;
-        }
-      }
-      html += `</table><p><strong>Total Cost (THB):</strong> <span style="color:red">${total.toLocaleString()}</span></p>`;
-      document.getElementById("captureZone").innerHTML = html;
-    }
-
-    function exportImage() {
-      const node = document.getElementById("captureZone");
-      html2canvas(node, { scale: 2, useCORS: true }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "nivocalc_result.jpg";
-        link.href = canvas.toDataURL("image/jpeg");
-        link.click();
-      });
-    }
+  populate(); onCalc();
   </script>
 </body>
 </html>
