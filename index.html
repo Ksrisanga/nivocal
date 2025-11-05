@@ -1,195 +1,459 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NivoCaL — v6.6 (Fixed mapping: Main)</title>
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NivoCaL — v7.8 (Auto Sheet + Live Badge)</title>
 <style>
-  :root{--line:#e5e7eb;--card:#f9fafb;--accent:#00a4cf;--primary:#f15a22}
-  *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
-  header{padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:5}
-  h1{margin:0;font-size:18px}
-  .banner{padding:8px 12px;background:#ecfdf5;border-bottom:1px solid #d1fae5;color:#065f46;font-size:12px}
-  main{max-width:1200px;margin:18px auto;padding:0 12px 84px;display:grid;gap:16px;grid-template-columns:1fr}
-  @media(min-width:980px){ main{grid-template-columns:420px 1fr} }
-  .card{background:#f9fafb;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 20px #0000000a}
-  .card h2{margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:16px}
-  .pad{padding:14px 16px} label{display:block;font-size:13px;margin:10px 0 6px}
-  input,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line)}
-  .inline{display:flex;gap:10px;flex-wrap:wrap}
-  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  th,td{padding:10px 12px;border-bottom:1px solid var(--line)} th{background:#f3f4f6;text-align:left}
-  .btn{cursor:pointer;padding:12px 16px;border:1px solid var(--line);border-radius:12px}
-  .primary{background:var(--primary);color:#fff;border-color:#e24f1a}
-  .toggle-group{display:flex;gap:8px;flex-wrap:wrap}.toggle{cursor:pointer;padding:8px 12px;border:1px solid var(--line);border-radius:999px}
-  .active{background:#00a4cf;color:#fff;border-color:#0594b8}
-  .small{font-size:12px;color:#6b7280}
+:root{--line:#e5e7eb;--card:#f9fafb;--accent:#00a4cf;--primary:#f15a22}
+*{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;background:#fff}
+header{padding:14px 16px;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:18px}
+.badge{font-size:12px;cursor:pointer;padding:6px 10px;border-radius:999px;border:1px solid var(--line);user-select:none}
+.badge.loading{color:#92400e;background:#fef3c7;border-color:#fcd34d}
+.badge.online{color:#065f46;background:#ecfdf5;border-color:#6ee7b7}
+.badge.error{color:#991b1b;background:#fee2e2;border-color:#fecaca}
+main{max-width:1200px;margin:18px auto;padding:0 12px 84px;display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:980px){main{grid-template-columns:420px 1fr}}
+.card{background:#f9fafb;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 20px #0000000a}
+.card h2{margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:16px}
+.pad{padding:14px 16px}label{display:block;font-size:13px;margin:10px 0 6px}
+input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line)}
+.inline{display:flex;gap:10px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line)}th{background:#f3f4f6;text-align:left}
+.btn{cursor:pointer;padding:12px 16px;border:1px solid var(--line);border-radius:12px}
+.primary{background:var(--primary);color:#fff;border-color:#e24f1a}
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap}.toggle{cursor:pointer;padding:8px 12px;border:1px solid var(--line);border-radius:999px}
+.active{background:#00a4cf;color:#fff;border-color:#0594b8}
+.small{font-size:12px;color:#6b7280}.hidden{display:none!important}
+.right{text-align:right}.center{text-align:center}.muted{color:#6b7280}
+.error{white-space:pre-wrap;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;padding:10px;border-radius:10px}
+.success{color:#065f46;background:#ecfdf5;border:1px solid #d1fae5;padding:8px;border-radius:10px}
 </style>
-</head>
-<body>
-  <header>
-    <h1>NivoCaL — v6.6 (Fixed mapping: Main)</h1>
-    <div class="banner" id="dbg"></div>
-  </header>
+</head><body>
+<header>
+  <div class="inline" style="align-items:center;justify-content:space-between">
+    <h1>NivoCaL — v7.8</h1>
+    <span id="dataBadge" class="badge" title="แตะเพื่อเปิด/ปิดตัวโหลดข้อมูล">Data: offline</span>
+  </div>
+</header>
 
-  <main>
-    <div>
-      <section class="card">
-        <h2>Patient</h2>
-        <div class="pad">
-          <label>Patient weight (kg)</label>
-          <input id="weight" type="number" min="1" step="0.1" value="60"/>
+<main>
+  <div>
+    <section class="card" id="dataCard">
+      <h2>Data source</h2>
+      <div class="pad">
+        <div class="small" id="sourceInfo" style="margin-bottom:8px">
+          ระบบจะดึงข้อมูลจาก Google Sheet อัตโนมัติเมื่อเปิดหน้านี้ (ถ้าล้มเหลว สามารถโหลด CSV ด้วยตนเอง)
         </div>
-      </section>
-
-      <section class="card">
-        <h2>Indication & Regimen</h2>
-        <div class="pad">
-          <div class="inline">
-            <div style="flex:1"><label>Indication</label><select id="indication"></select></div>
-            <div style="flex:1"><label>Regimen</label><select id="regimen"></select></div>
-          </div>
-          <div class="small">Cycles auto-set per regimen. IPI promo handled when combo present.</div>
+        <div class="inline">
+          <input type="file" id="csvFile" accept=".csv,text/csv" style="flex:1"/>
+          <button class="btn" id="loadFileBtn" type="button">Load file</button>
         </div>
-      </section>
-    </div>
+        <label style="margin-top:12px">หรือวาง CSV ที่นี่</label>
+        <textarea id="csvText" rows="6" placeholder="วาง CSV..."></textarea>
+        <div class="inline" style="margin-top:10px">
+          <button class="btn" id="loadTextBtn" type="button">Load</button>
+          <span id="loadMsg" class="small"></span>
+        </div>
+      </div>
+    </section>
 
-    <div>
-      <section class="card">
-        <h2>Pricing</h2>
-        <div class="pad">
-          <div class="inline">
-            <div style="flex:1"><label>Nivolumab — 40 mg (THB)</label><input id="price40" type="number" value="23540"></div>
-            <div style="flex:1"><label>Nivolumab — 100 mg (THB)</label><input id="price100" type="number" value="58850"></div>
-          </div>
-          <div class="inline" style="margin-top:10px">
-            <div style="flex:1"><label>Nivolumab — 120 mg (THB)</label><input id="price120" type="number" value="70620"></div>
-            <div style="flex:1"><label>Ipilimumab — 50 mg (THB)</label><input id="priceIpi50" type="number" value="60348"><div class="small">Promo: 1-for-1 on first 4 cycles</div></div>
-          </div>
-          <div style="margin-top:8px">
-            <label>Allowed vial sizes</label>
-            <div class="toggle-group" id="vialToggles">
-              <div class="toggle active" data-mg="40">40 mg</div>
-              <div class="toggle active" data-mg="100">100 mg</div>
-              <div class="toggle active" data-mg="120">120 mg</div>
-            </div>
+    <section class="card">
+      <h2>Patient</h2>
+      <div class="pad">
+        <label>น้ำหนักผู้ป่วย (kg)</label>
+        <input id="weight" type="number" min="1" step="0.1" value="60"/>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Indication & Regimen</h2>
+      <div class="pad">
+        <div id="dbg" class="success" style="display:none;margin-bottom:10px"></div>
+        <div id="err" class="error hidden" style="margin-bottom:10px"></div>
+        <div class="inline">
+          <div style="flex:1"><label>Indication</label><select id="indication"></select></div>
+          <div style="flex:1"><label>Regimen</label><select id="regimen"></select></div>
+        </div>
+        <div class="small" style="margin-top:6px">
+          Flat dose: 240 mg Q2W (pay7/free7), 360 mg Q3W (pay5/free5), 480 mg Q4W (pay3.5/free3.5) — Free up to 2 years.
+          <b>mg/kg</b>: Buy-1-Get-1 สลับกัน, <b>คุม 10 เดือน</b>.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div>
+    <section class="card">
+      <h2>Pricing</h2>
+      <div class="pad">
+        <div class="inline">
+          <div style="flex:1"><label>Nivolumab — 40 mg (THB)</label><input id="price40" type="number" value="23540"></div>
+          <div style="flex:1"><label>Nivolumab — 100 mg (THB)</label><input id="price100" type="number" value="58850"></div>
+        </div>
+        <div class="inline" style="margin-top:10px">
+          <div style="flex:1"><label>Nivolumab — 120 mg (THB)</label><input id="price120" type="number" value="70620"></div>
+          <div style="flex:1"><label>Ipilimumab — 50 mg (THB)</label><input id="priceIpi50" type="number" value="60348"><div class="small">IPI promo: 1-for-1 (ถ้าระบุในชีต)</div></div>
+        </div>
+        <div style="margin-top:8px">
+          <label>Allowed vial sizes</label>
+          <div class="toggle-group" id="vialToggles">
+            <div class="toggle active" data-mg="40">40 mg</div>
+            <div class="toggle active" data-mg="100">100 mg</div>
+            <div class="toggle active" data-mg="120">120 mg</div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="card">
-        <h2>Result</h2>
-        <div class="pad" id="result"><div class="small">Press <b>Calculate</b>.</div></div>
-      </section>
+    <section class="card">
+      <h2>Result</h2>
+      <div class="pad" id="result"><div class="small">กำลังรอข้อมูล…</div></div>
+    </section>
 
-      <section class="card">
-        <h2>Actions</h2>
-        <div class="pad inline">
-          <button class="btn primary" id="calcBtn">Calculate</button>
-          <button class="btn" id="exportBtn">Export Result</button>
-        </div>
-      </section>
-    </div>
-  </main>
+    <section class="card">
+      <h2>Actions</h2>
+      <div class="pad inline">
+        <button class="btn primary" id="calcBtn" type="button">Calculate</button>
+        <button class="btn" id="exportBtn" type="button">Export Result</button>
+      </div>
+    </section>
+  </div>
+</main>
 
-  <script>
-  const DATA = [{"indication": "SCCHN (2L)", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "NSCLC (Neoadjuvant)", "regimens": [{"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": null}]}, {"indication": "NSCLC (1L)", "regimens": [{"name": "Nivo + Ipi (Nivo 3.0 mg/kg + Ipi 1.0 mg/kg) Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}]}, {"indication": "NSCLC (2L)", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "MPM (1L)", "regimens": [{"name": "Nivo + Ipi (Nivo 3.0 mg/kg + Ipi 1.0 mg/kg) Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}]}, {"indication": "Adj EC or GEJC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L ESCC", "regimens": [{"name": "Nivo + Ipi (Nivo 3.0 mg/kg + Ipi 1.0 mg/kg) Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": {"ipiMgPerKg": 1.0, "ipiCycles": 4}}, {"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L GC,GEJC,EAC", "regimens": [{"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L ESCC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "3L GC/GEJ", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L Melanoma", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "Adj Melanoma", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L cHL", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L RCC", "regimens": [{"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L RCC ", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "Adj MIUC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L UC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L HCC", "regimens": [{"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivo + Ipi Q2W", "type": "fixed", "doseMg": null, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L HCC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}]}, {"indication": "1L mCRC", "regimens": [{"name": "Nivolumab 360 mg Q3W", "type": "fixed", "doseMg": 360.0, "mgPerKg": null, "freq": "q3w", "defaultCycles": 4, "combo": null}]}, {"indication": "2L mCRC", "regimens": [{"name": "Nivolumab 240 mg Q2W", "type": "fixed", "doseMg": 240.0, "mgPerKg": null, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 480 mg Q4W", "type": "fixed", "doseMg": 480.0, "mgPerKg": null, "freq": "q4w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 3.0 mg/kg Q2W", "type": "mgkg", "doseMg": null, "mgPerKg": 3.0, "freq": "q2w", "defaultCycles": 4, "combo": null}, {"name": "Nivolumab 1.0 mg/kg Q3W", "type": "mgkg", "doseMg": null, "mgPerKg": 1.0, "freq": "q3w", "defaultCycles": 4, "combo": null}]}];
+<script>
+/*** Config ***/
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRBKdwn8wnK5n4_nfD5AuPL6_3xKahOOlg8CHOfMgZrXsuW8pPyihIO9_t1wSUPt7rlluI07x4QUr4B/pub?gid=0&single=true&output=csv';
 
-  // Debug banner
-  document.getElementById('dbg').textContent = `Loaded ${DATA.length} indications / ${DATA.reduce((s,g)=>s+g.regimens.length,0)} regimens from sheet: Main`;
+/*** Helpers / UI ***/
+let DATA=[]; const $=s=>document.querySelector(s);
+function fmt(n){return new Intl.NumberFormat('en-US').format(n)}
+function keyify(s){return (s||"").toString().trim().toLowerCase().replace(/\s+/g,' ').replace(/[^a-z0-9/ %]+/g,'')}
+function getAllowedVials(){return [...document.querySelectorAll('.toggle[data-mg]')].filter(t=>t.classList.contains('active')).map(t=>+t.dataset.mg)}
+document.addEventListener('click',e=>{const t=e.target.closest('.toggle'); if(t) t.classList.toggle('active')});
+$('#dataBadge').addEventListener('click',()=>$('#dataCard').classList.toggle('hidden'));
+function showOK(m){const n=$('#dbg');n.textContent=m;n.style.display='block';$('#err').classList.add('hidden')}
+function showError(m){const n=$('#err');n.textContent=m;n.classList.remove('hidden')}
+function setBadge(state,msg){
+  const b=$('#dataBadge'); b.classList.remove('loading','online','error');
+  if(state==='loading'){ b.classList.add('loading'); b.textContent = msg||'Data: loading…'; }
+  else if(state==='online'){ b.classList.add('online'); b.textContent = msg||'Data: online'; }
+  else if(state==='error'){ b.classList.add('error'); b.textContent = msg||'Data: error'; }
+  else { b.textContent = msg||'Data: offline'; }
+}
 
-  function fmt(n){ return new Intl.NumberFormat('en-US').format(n); }
-  function getAllowedVials(){ return Array.from(document.querySelectorAll('.toggle[data-mg]')).filter(t=>t.classList.contains('active')).map(t=>parseInt(t.dataset.mg,10)); }
-  document.getElementById('vialToggles').addEventListener('click', e=>{ const t=e.target.closest('.toggle'); if(!t) return; t.classList.toggle('active'); });
-
-  function populate(){
-    const elInd=document.getElementById('indication');
-    if(!DATA.length){ elInd.innerHTML = '<option>(no data)</option>'; return; }
-    elInd.innerHTML = DATA.map((g,i)=>`<option value="${i}">${g.indication}</option>`).join('');
-    elInd.selectedIndex=0;
-    changeInd();
+/*** CSV parser ***/
+function parseCSV(txt){
+  const rows=[];let i=0,cur='',inQ=false,row=[];
+  while(i<txt.length){
+    const ch=txt[i];
+    if(inQ){ if(ch=='"'){ if(txt[i+1]=='"'){cur+='"';i++;}else inQ=false; } else cur+=ch; }
+    else{ if(ch=='"') inQ=true; else if(ch==','){row.push(cur);cur=''} else if(ch=='\n'){row.push(cur);rows.push(row);row=[];cur=''} else if(ch!='\r'){cur+=ch} }
+    i++;
   }
-  function changeInd(){
-    const elInd=document.getElementById('indication');
-    const elReg=document.getElementById('regimen');
-    const group = DATA[+elInd.value];
-    elReg.innerHTML = (group?.regimens||[]).map((r,i)=>{
-      const combo = r.combo ? " • Combo (IPI×4)" : "";
-      return `<option value="${i}">${r.name}${combo}</option>`;
-    }).join('');
-    elReg.selectedIndex=0;
-  }
-  document.getElementById('indication').addEventListener('change', ()=>{ changeInd(); onCalc(); });
-  document.getElementById('regimen').addEventListener('change', onCalc);
-  document.getElementById('calcBtn').addEventListener('click', onCalc);
+  row.push(cur);rows.push(row);
+  while(rows.length && rows[rows.length-1].every(v=>String(v).trim()==='')) rows.pop();
+  return rows;
+}
 
-  function optimizeVials(needMg, allowed, prices){
-    if(!allowed.length) return null;
-    let best=null;
-    function consider(counts){
-      const totalMg = Object.entries(counts).reduce((s,[mg,c])=>s + (+mg)*c, 0);
-      if(totalMg < needMg) return;
-      const cost = Object.entries(counts).reduce((s,[mg,c])=> s + (prices[mg]||0)*c, 0);
-      const over = totalMg - needMg;
-      const score = [cost, over, (counts[40]||0)+(counts[100]||0)+(counts[120]||0), totalMg];
-      if(!best || score.some((v,i)=>v<(best.score[i]||Infinity))) best = {counts:{...counts}, totalMg, overfill:over, cost, score};
+/*** Fuzzy column finder ***/
+function findColExact(cols, names){
+  for(const n of names){ if(cols.includes(n)) return n; }
+  const low=cols.map(c=>c.toLowerCase());
+  for(const n of names){ const idx=low.indexOf(n.toLowerCase()); if(idx>-1) return cols[idx]; }
+  return null;
+}
+function findColFuzzy(cols, must=[], any=[]){
+  const ok = c => {
+    const k=keyify(c);
+    const hasAll = must.every(t=>k.includes(t));
+    const hasAny = any.length? any.some(t=>k.includes(t)) : true;
+    return hasAll && hasAny;
+  };
+  return cols.find(ok) || null;
+}
+
+/*** Build data ***/
+function toFloat(x){ if(x==null||x==="")return null; const s=String(x).replace(/,/g,''); const m=s.match(/[-+]?\d*\.?\d+/); return m?parseFloat(m[0]):null }
+function toInt(x,d){ const v=toFloat(x); return v==null?d:parseInt(v) }
+function weeksToFreq(w){ const wi=toInt(w,null); if([2,3,4].includes(wi)) return `q${wi}w`; const s=(w??"").toString().trim().toLowerCase(); return ['q2w','q3w','q4w'].includes(s)?s:'q2w' }
+function freqWeeks(freq){ const s=(freq||'').toString().trim().toLowerCase(); if(s==='q2w')return 2; if(s==='q3w')return 3; if(s==='q4w')return 4; return 2; }
+
+function buildDataFromCSV(text){
+  const arr=parseCSV(text); if(!arr.length) throw new Error('CSV ว่าง');
+  const headers=arr[0]; const rows=arr.slice(1).map(r=>{const o={}; headers.forEach((h,i)=>o[h]=r[i]??''); return o;});
+  buildDataFromRows(rows);
+}
+
+function buildDataFromRows(rows){
+  if(!rows.length) throw new Error('ไม่มีข้อมูล');
+  const cols=Object.keys(rows[0]||{});
+
+  const col_ind = findColExact(cols, ['Indication']);
+  let col_regname = findColExact(cols, ['Regimen Name','Regimen','Regimen Group','Protocol']) || findColFuzzy(cols, [], ['regimen']);
+
+  const col_nivo_type = findColExact(cols, ['Nivolumab Type','Induction Nivolumab Type','Type']) || findColFuzzy(cols, ['nivo','induc'], ['type']);
+  const col_nivo_dose = findColExact(cols, ['Nivolumab Dose','Induction Nivolumab Dose']) || findColFuzzy(cols, ['nivo','induc'], ['dose','mg']);
+  const col_interval_w = findColExact(cols, ['Interval (weeks)','Induction Freq']) || findColFuzzy(cols, ['induc'], ['freq','interval','q2w','q3w','q4w']);
+
+  const col_cycles = findColExact(cols, ['Cap (Cycle)','Induction Cycles']) || findColFuzzy(cols, ['nivo','induc'], ['cycle','cap']);
+  const col_free = findColExact(cols, ['Free (Cycle)','Induction Free']) || findColFuzzy(cols, ['nivo','induc'], ['free']);
+
+  const col_combo_flag = findColExact(cols, ['Combo with ipilimumab','Induction Combo Ipi','Combo Ipi']) || findColFuzzy(cols, ['ipi','combo']);
+  const col_ipi_dose = findColExact(cols, ['Ipilimumab Dose','Induction Ipi mg/kg']) || findColFuzzy(cols, ['ipi','induc'], ['mg','dose']);
+  const col_ipi_cycles = findColExact(cols, ['Induction Ipi Cycles']) || findColFuzzy(cols, ['ipi','induc'], ['cycle']);
+  const col_ipi_free = findColExact(cols, ['Induction Ipi Free']) || findColFuzzy(cols, ['ipi','induc'], ['free']);
+
+  if(!col_ind || !col_regname || !col_nivo_dose) throw new Error('หา Indication/Regimen/Dose ไม่เจอในหัวคอลัมน์');
+
+  const recs=[];
+  for(const row of rows){
+    const ind=row[col_ind]; const groupName=row[col_regname];
+    if(!ind || !groupName) continue;
+
+    let rawType=(row[col_nivo_type]||'').toString().trim().toLowerCase();
+    if(!rawType || rawType==='-') rawType = (String(row[col_nivo_dose]||'').toLowerCase().includes('/kg')) ? 'mgkg' : 'fixed';
+    if(rawType==='fix') rawType='fixed';
+    if(['mg per kg','mgkg','mg/kg'].includes(rawType)) rawType='mgkg';
+
+    const dose_val = toFloat(row[col_nivo_dose]);
+    const freq = weeksToFreq(row[col_interval_w]);
+
+    const cycles = toInt(row[col_cycles], 4);
+    const free_cycles = toInt(row[col_free], 0) || 0;
+    const pay_cycles = Math.max(0, cycles - free_cycles);
+
+    let combo=null;
+    const yes = col_combo_flag && String(row[col_combo_flag]).match(/^(yes|y|true|1)$/i);
+    if(yes){
+      const ipiMgkg = toFloat(row[col_ipi_dose]);
+      let ipiCycles = toInt(row[col_ipi_cycles], 4);
+      let ipiFree = col_ipi_free ? (toInt(row[col_ipi_free],0)||0) : 0;
+      let ipiPay = Math.max(0, ipiCycles - ipiFree);
+      if(!col_ipi_free){ const promo = Math.min(ipiCycles,4); ipiPay = Math.floor((promo+1)/2); ipiFree = promo - ipiPay; }
+      combo={ipiMgPerKg:ipiMgkg,ipiCycles,ipiFree,ipiPay};
     }
-    const cap = (mg)=> Math.ceil((needMg+360)/mg);
-    const ranges = {40: allowed.includes(40)?cap(40):0, 100: allowed.includes(100)?cap(100):0, 120: allowed.includes(120)?cap(120):0};
-    for(let n120=0;n120<=ranges[120];n120++)
-      for(let n100=0;n100<=ranges[100];n100++)
-        for(let n40=0;n40<=ranges[40];n40++)
-          if(n120+n100+n40) consider({40:n40,100:n100,120:n120});
-    return best;
-  }
-  function computeDose(reg, weightKg){ if(reg.type==='fixed') return reg.doseMg; if(reg.type==='mgkg') return Math.ceil((reg.mgPerKg||0) * weightKg); return 0; }
-  function computeIpiDose(reg, weightKg){ if(!reg.combo) return 0; return Math.ceil((reg.combo.ipiMgPerKg||0) * weightKg); }
 
-  function onCalc(){
-    const res = document.getElementById('result');
-    if(!DATA.length){ res.innerHTML = '<div class="small">No data</div>'; return; }
-    const gi = +document.getElementById('indication').value;
-    const ri = +document.getElementById('regimen').value;
-    const group = DATA[gi]; const reg = group.regimens[ri];
-    const weight = parseFloat(document.getElementById('weight').value||'0');
-    const plannedCycles = reg.defaultCycles || 4;
-    const need = computeDose(reg, weight);
-    const allowed = getAllowedVials();
-    const prices = {40: parseFloat(document.getElementById('price40').value||'0'), 100: parseFloat(document.getElementById('price100').value||'0'), 120: parseFloat(document.getElementById('price120').value||'0')};
-    const best = optimizeVials(need, allowed, prices);
-    const ipiPerCycleMg = computeIpiDose(reg, weight);
-    const ipiPrice = parseFloat(document.getElementById('priceIpi50').value||'0');
-    const comboCycles = reg.combo ? Math.min(plannedCycles, (reg.combo.ipiCycles||4)) : 0;
-    let ipiVials=0, ipiOver=0, ipiPayCycles=0, ipiFreeCycles=0, ipiTotalCost=0, ipiPromoNote="";
-    if(ipiPerCycleMg>0){ ipiVials=Math.ceil(ipiPerCycleMg/50); ipiOver=ipiVials*50-ipiPerCycleMg; ipiPayCycles=Math.ceil(comboCycles/2); ipiFreeCycles=comboCycles-ipiPayCycles; ipiTotalCost=ipiVials*ipiPrice*ipiPayCycles; ipiPromoNote=`Promo on first ${comboCycles} cycles: pay ${ipiPayCycles}, free ${ipiFreeCycles}`; }
-    const nivoCostPerCycle = best? ((best.counts[40]||0)*prices[40] + (best.counts[100]||0)*prices[100] + (best.counts[120]||0)*prices[120]) : 0;
-    const nivoTotal = nivoCostPerCycle * plannedCycles;
-    const grandTotal = nivoTotal + ipiTotalCost;
-    const vialMix = best? `${best.counts[120]||0}×120 mg • ${best.counts[100]||0}×100 mg • ${best.counts[40]||0}×40 mg` : '-';
-    const rows = [];
-    rows.push(`<tr><th>Item</th><th class="center">Per-cycle Qty</th><th class="center">Vial mix</th><th class="right">Cost / cycle (THB)</th></tr>`);
-    rows.push(`<tr><td>Nivolumab</td><td class="center">${fmt(need)} mg</td><td class="center small">${vialMix}</td><td class="right">${fmt(nivoCostPerCycle)}</td></tr>`);
-    if(best) rows.push(`<tr><td class="muted">Overfill</td><td class="center">${fmt(best.overfill)} mg</td><td class="center">Total ${fmt(best.totalMg)} mg</td><td class="right">-</td></tr>`);
-    if(ipiPerCycleMg>0){ rows.push(`<tr><td>Ipilimumab (combo)</td><td class="center">${fmt(ipiPerCycleMg)} mg</td><td class="center small">${ipiVials}×50 mg</td><td class="right">${fmt(Math.round(ipiVials*ipiPrice*(comboCycles>0?0.5:1)))}</td></tr>`); rows.push(`<tr><td class="muted">IPI details</td><td class="center">Overfill ${fmt(ipiOver)} mg</td><td class="center small">${ipiPromoNote}</td><td class="right">${fmt(ipiTotalCost)}</td></tr>`); }
-    rows.push(`<tr><th>Cycles summary</th><th class="center">Pay</th><th class="center">Free</th><th class="right">Total drug cost (THB)</th></tr>`);
-    rows.push(`<tr><td>Nivolumab</td><td class="center">${fmt(plannedCycles)}</td><td class="center">0</td><td class="right">${fmt(nivoTotal)}</td></tr>`);
-    if(ipiPerCycleMg>0) rows.push(`<tr><td>Ipilimumab</td><td class="center">${fmt(ipiPayCycles)}</td><td class="center">${fmt(ipiFreeCycles)}</td><td class="right">${fmt(ipiTotalCost)}</td></tr>`);
-    rows.push(`<tr><td style="color:#059669"><b>Grand total</b></td><td class="center">—</td><td class="center">—</td><td class="right"><b>${fmt(grandTotal)}</b></td></tr>`);
-    res.innerHTML = `<div class="inline" style="margin-bottom:6px"><span class="small">Indication:</span><b style="margin-left:6px">${group.indication}</b></div>
-      <div class="inline" style="margin-bottom:6px"><span class="small">Regimen:</span><b style="margin-left:6px">${reg.name}</b></div>
-      <div class="inline" style="margin-bottom:6px"><span class="small">Weight:</span><b style="margin-left:6px">${fmt(weight)} kg</b> <span class="small" style="margin-left:10px">Cycles:</span><b style="margin-left:6px">${fmt(plannedCycles)}</b></div>
-      <table>${rows.join('')}</table>`;
+    let name;
+    if(rawType==='fixed' && dose_val!=null) name = `Nivolumab ${Math.round(dose_val)} mg ${freq.toUpperCase()}`;
+    else if(rawType==='mgkg' && dose_val!=null) name = `Nivolumab ${dose_val} mg/kg ${freq.toUpperCase()}`;
+    else name = `${groupName} ${freq.toUpperCase()}`;
+
+    recs.push({
+      indication:String(ind),
+      name, type:(rawType==='mgkg'?'mgkg':'fixed'),
+      doseMg:(rawType==='fixed'?dose_val:null),
+      mgPerKg:(rawType==='mgkg'?dose_val:null),
+      freq, cycles, freeCycles:free_cycles, payCycles:pay_cycles,
+      combo
+    });
   }
 
-  // Export PNG
-  document.getElementById('exportBtn').addEventListener('click', async ()=>{
-    const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-    s.onload = async ()=>{ const node=document.getElementById('result'); const canvas=await html2canvas(node,{backgroundColor:'#fff',scale:2});
-      const a=document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download='NivoCaL_result.png'; a.click(); };
-    document.head.appendChild(s);
-  });
+  const grouped={}; for(const r of recs){ (grouped[r.indication] = grouped[r.indication] || []).push(r); }
+  function dedupeByName(arr){ const seen=new Map(); for(const x of arr){ const k=(x.name||'').trim().toLowerCase(); if(!seen.has(k)) seen.set(k,x); } return [...seen.values()]; }
+  DATA = Object.keys(grouped).map(k=>({ indication:k, regimens:dedupeByName(grouped[k]) }));
 
-  populate(); onCalc();
-  </script>
-</body>
-</html>
+  $('#indication').innerHTML = DATA.map((g,i)=>`<option value="${i}">${g.indication}</option>`).join('');
+  $('#indication').selectedIndex=0; changeInd();
+  showOK(`Loaded ${DATA.length} indications / ${DATA.reduce((s,g)=>s+g.regimens.length,0)} regimens`);
+  onCalc();
+}
+function changeInd(){
+  const gi=+$('#indication').value; const group=DATA[gi]||{regimens:[]};
+  $('#regimen').innerHTML = group.regimens.map((r,i)=>`<option value="${i}">${r.name}</option>`).join('');
+  $('#regimen').selectedIndex=0;
+}
+
+/*** Dose helpers ***/
+function computeDoseNivo(reg, wKg){
+  const w = Number(wKg)||0;
+  if (reg.type==='fixed') return reg.doseMg ? Math.max(0, Math.round(reg.doseMg)) : 0;
+  if (reg.type==='mgkg')  return reg.mgPerKg ? Math.max(0, Math.ceil(reg.mgPerKg * w)) : 0;
+  return 0;
+}
+function computeDoseIpi(reg, wKg){ if(!reg.combo) return 0; const w=Number(wKg)||0; return Math.max(0, Math.ceil((reg.combo.ipiMgPerKg||0)*w)); }
+
+/*** Flat-dose promotion (Buy 1 Get 1 Free; Free up to 2 years) ***/
+function computeFlatDosePromo(reg){
+  if(reg.type!=='fixed') return null;
+  const dose = Math.round(reg.doseMg||0);
+  const freq = (reg.freq||'').toLowerCase();
+  if(dose===240 && freq==='q2w') return { total:14, pay:7,   free:7,   mgForCost:240, note:'Free up to 2 years' };
+  if(dose===360 && freq==='q3w') return { total:10, pay:5,   free:5,   mgForCost:360, note:'Free up to 2 years' };
+  if(dose===480 && freq==='q4w') return { total:7,  pay:3.5, free:3.5, mgForCost:480, note:'Free up to 2 years' };
+  return null;
+}
+
+/*** mg/kg promotion (Buy 1 Get 1, capped 10 months) ***/
+function computeMgKgPromo(reg, weight){
+  if(reg.type!=='mgkg') return null;
+  const total = Math.floor((10*4) / freqWeeks(reg.freq)); // cap 10 เดือน
+  const pay   = Math.ceil(total/2); // ซื้อ 1 แถม 1 (เริ่มเป็น Pay)
+  const free  = Math.floor(total/2);
+  const mgForCost = computeDoseNivo(reg, weight); // ค่า/รอบคิดจากปริมาณจริงตามน้ำหนัก
+  return { total, pay, free, mgForCost, note:'Buy-1-Get-1 (mg/kg), capped 10 months' };
+}
+
+/*** Optimizer (cost → overfill → #vials → total mg) ***/
+function optimizeVials(needMg, allowed, prices){
+  if(!allowed.length) return null;
+  const max = mg => Math.ceil(needMg/mg) + 3;
+  const range = {40:0,100:0,120:0};
+  [40,100,120].forEach(mg => { if(allowed.includes(mg)) range[mg]=max(mg); });
+
+  let best=null;
+  function score(counts){
+    const total = [40,100,120].reduce((s,m)=>s + m*(counts[m]||0),0);
+    if(total<needMg) return null;
+    const cost  = (counts[40]||0)*(prices[40]||0) + (counts[100]||0)*(prices[100]||0) + (counts[120]||0)*(prices[120]||0);
+    const over  = total - needMg;
+    const vials = (counts[40]||0)+(counts[100]||0)+(counts[120]||0);
+    return {counts,total,cost,over,vials,lex:[cost,over,vials,total]};
+  }
+  function better(a,b){for(let i=0;i<a.lex.length;i++){if(a.lex[i]<b.lex[i])return true; if(a.lex[i]>b.lex[i])return false} return false}
+
+  for(let n120=0;n120<=range[120];n120++)
+    for(let n100=0;n100<=range[100];n100++)
+      for(let n40=0;n40<=range[40];n40++){
+        if(n120+n100+n40===0) continue;
+        const sc = score({120:n120,100:n100,40:n40});
+        if(!sc) continue;
+        if(!best || better(sc,best)) best=sc;
+      }
+  return best;
+}
+
+/*** Render helpers ***/
+function regimenSummary(r){
+  const base = (r.type==='fixed' && r.doseMg!=null)
+    ? `Nivolumab ${Math.round(r.doseMg)} mg ${r.freq.toUpperCase()}`
+    : (r.type==='mgkg' && r.mgPerKg!=null)
+      ? `Nivolumab ${r.mgPerKg} mg/kg ${r.freq.toUpperCase()}`
+      : `${r.name}`;
+  return base;
+}
+
+/*** Main calc ***/
+function onCalc(){
+  const res=$('#result'); if(!DATA.length){res.innerHTML='<div class="small">ยังไม่มีข้อมูล CSV</div>';return}
+  const gi=+$('#indication').value; const ri=+$('#regimen').value; const group=DATA[gi]; const reg=group.regimens[ri]; const weight=+($('#weight').value||0);
+
+  // เลือกกฎโปร / คุมรอบ
+  const perCycleTotalMg = computeDoseNivo(reg,weight);
+  const flatPromo = computeFlatDosePromo(reg);
+  const mgkgPromo = computeMgKgPromo(reg, weight);
+
+  let cycles, pay, free, mgForCostPerCycle, promoNote='';
+
+  if (flatPromo){
+    cycles = flatPromo.total; pay = flatPromo.pay; free = flatPromo.free;
+    mgForCostPerCycle = flatPromo.mgForCost; promoNote = flatPromo.note;
+  } else if (mgkgPromo){
+    cycles = mgkgPromo.total; pay = mgkgPromo.pay; free = mgkgPromo.free;
+    mgForCostPerCycle = mgkgPromo.mgForCost; promoNote = mgkgPromo.note;
+  } else {
+    const total = Math.floor((7*4)/freqWeeks(reg.freq));
+    cycles = total; pay = total; free = 0; mgForCostPerCycle = perCycleTotalMg;
+  }
+
+  // ราคา/ขวด
+  const allowed=getAllowedVials();
+  if(allowed.length===0){ showError('กรุณาเลือกอย่างน้อย 1 ขนาดขวด'); return; }
+  const prices={40:+$('#price40').value||0,100:+$('#price100').value||0,120:+$('#price120').value||0};
+
+  let best=null, per=0, mix='—', overRow='';
+  if(mgForCostPerCycle>0){
+    best=optimizeVials(mgForCostPerCycle,allowed,prices);
+    per=((best?.counts[40]||0)*prices[40]+(best?.counts[100]||0)*prices[100]+(best?.counts[120]||0)*prices[120]);
+    mix=`${best?.counts[120]||0}×120 mg • ${best?.counts[100]||0}×100 mg • ${best?.counts[40]||0}×40 mg`;
+    overRow=`<tr><td class="muted">Overfill (paid)</td><td class="center">${fmt(best.over)} mg</td><td class="center">Total ${fmt(best.total)} mg</td><td class="right">-</td></tr>`;
+  }
+  const nivoTotal=per*pay;
+
+  // IPI
+  const ipiNeed=computeDoseIpi(reg,weight), pIpi=+$('#priceIpi50').value||0;
+  let iV=0,iOver=0,iPay=0,iFree=0,iSum=0,iNote='';
+  if(ipiNeed>0){ iV=Math.ceil(ipiNeed/50); iOver=iV*50-ipiNeed; iPay=reg.combo.ipiPay||0; iFree=reg.combo.ipiFree||0; iSum=iV*pIpi*iPay; iNote=`IPI cycles: ${reg.combo.ipiCycles} ⇒ pay ${iPay}, free ${iFree}`; }
+
+  const grand=nivoTotal+iSum;
+
+  // Render
+  const allowedLabel = `Vial availability: ${allowed.sort((a,b)=>a-b).join(', ')} mg`;
+  const promoHtml = promoNote ? `<div class="small" style="margin:6px 0 10px;color:#0369a1">${promoNote}</div>` : '';
+  const perCycleLabel = `${fmt(perCycleTotalMg)} mg <span class="small">(คิดค่า/รอบจาก ${fmt(mgForCostPerCycle)} mg)</span>`;
+
+  const rows=[];
+  rows.push(`<tr><th>Item</th><th class="center">Per-cycle Qty</th><th class="center">Vial mix</th><th class="right">Cost / cycle (THB)</th></tr>`);
+  rows.push(`<tr><td>Nivolumab</td><td class="center">${perCycleLabel}</td><td class="center small">${mix}</td><td class="right">${fmt(per)}</td></tr>`);
+  if(overRow) rows.push(overRow);
+  if(ipiNeed>0){
+    rows.push(`<tr><td>Ipilimumab (combo)</td><td class="center">${fmt(ipiNeed)} mg</td><td class="center small">${iV}×50 mg</td><td class="right">${fmt(iV*pIpi*(iPay?1:0))}</td></tr>`);
+    rows.push(`<tr><td class="muted">IPI details</td><td class="center">Overfill ${fmt(iOver)} mg</td><td class="center small">${iNote}</td><td class="right">${fmt(iSum)}</td></tr>`);
+  }
+
+  rows.push(`<tr><th>Cycles summary</th><th class="center">Pay</th><th class="center">Free</th><th class="right">Total drug cost (THB)</th></tr>`);
+  rows.push(`<tr><td>Nivolumab</td><td class="center">${fmt(pay)}</td><td class="center">${fmt(free)}</td><td class="right">${fmt(nivoTotal)}</td></tr>`);
+  if(ipiNeed>0) rows.push(`<tr><td>Ipilimumab</td><td class="center">${fmt(iPay)}</td><td class="center">${fmt(iFree)}</td><td class="right">${fmt(iSum)}</td></tr>`);
+  rows.push(`<tr><td style="color:#059669"><b>Grand total</b></td><td class="center">—</td><td class="center">—</td><td class="right"><b>${fmt(grand)}</b></td></tr>`);
+
+  res.innerHTML = `
+    <div class="inline" style="margin-bottom:6px"><span class="small">Indication:</span><b style="margin-left:6px">${group.indication}</b></div>
+    <div class="inline" style="margin-bottom:6px"><span class="small">Regimen:</span><b style="margin-left:6px">${regimenSummary(reg)}</b></div>
+    <div class="inline" style="margin-bottom:6px">
+      <span class="small">Weight:</span><b style="margin-left:6px">${fmt(weight)} kg</b>
+      <span class="small" style="margin-left:10px">Cycles:</span><b style="margin-left:6px">${fmt(cycles)}</b>
+      <span class="small" style="margin-left:10px">Pay:</span><b style="margin-left:6px">${fmt(pay)}</b>
+      <span class="small" style="margin-left:10px">Free:</span><b style="margin-left:6px">${fmt(free)}</b>
+    </div>
+    <div class="small" style="margin:4px 0 8px;color:#6b7280">${allowedLabel}</div>
+    ${promoHtml}
+    <table>${rows.join('')}</table>`;
+}
+
+/*** Manual Load (fallback) ***/
+$('#loadFileBtn').addEventListener('click',async()=>{
+  const f=$('#csvFile').files?.[0]; if(!f){alert('เลือกไฟล์ CSV ก่อน');return}
+  const text=await f.text(); try{buildDataFromCSV(text);$('#loadMsg').textContent='Loaded from file ✔'}catch(e){showError(e.message)}
+});
+$('#loadTextBtn').addEventListener('click',()=>{
+  const text=$('#csvText').value||''; if(!text.trim()){alert('วาง CSV ก่อน');return}
+  try{buildDataFromCSV(text);$('#loadMsg').textContent='Loaded from pasted CSV ✔'}catch(e){showError(e.message)}
+});
+
+/*** Export PNG (เฉพาะ Result table) ***/
+document.getElementById('exportBtn').addEventListener('click',async()=>{
+  const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+  s.onload=async()=>{const n=document.getElementById('result');const c=await html2canvas(n,{backgroundColor:'#fff',scale:2});const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='NivoCaL_result.png';a.click()};
+  document.head.appendChild(s)
+});
+
+/*** Auto load from Google Sheet ***/
+async function loadDataFromSheet(){
+  try{
+    setBadge('loading','Data: loading…');
+    // กัน cache ด้วย timestamp
+    const url = SHEET_CSV_URL + '&_t=' + Date.now();
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), 15000); // 15s timeout
+    const res = await fetch(url, {signal: ctrl.signal, mode:'cors', cache:'no-store'});
+    clearTimeout(timer);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    buildDataFromCSV(text);
+    setBadge('online','Data: online (Google Sheet)');
+    // ซ่อน manual loader
+    $('#dataCard').classList.add('hidden');
+    $('#sourceInfo').textContent = 'Loaded from Google Sheet.';
+  }catch(err){
+    setBadge('error','Data: error (tap to open loader)');
+    showError('โหลดจาก Google Sheet ไม่สำเร็จ: '+ (err?.message||err));
+    // แสดง manual loader
+    $('#dataCard').classList.remove('hidden');
+  }
+}
+window.addEventListener('DOMContentLoaded', loadDataFromSheet);
+
+$('#indication').addEventListener('change',()=>{changeInd();onCalc()});
+$('#regimen').addEventListener('change',onCalc);
+$('#calcBtn').addEventListener('click',onCalc);
+</script>
+</body></html>
